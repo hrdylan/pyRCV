@@ -1,6 +1,8 @@
 import React from 'react';
 import {useState} from 'react';
 import {Input, Button} from '@material-ui/core'
+import useFetch from './useFetch'
+import { resolve } from 'url';
 
 const styles = {
   fileSelector: {
@@ -15,17 +17,29 @@ const styles = {
   }
 
 }
+
+const pingServer = files => {
+  if (!files) {
+    return;
+  }
+  const reader = new FileReader()
+  reader.onload = () => {
+    fetch('http://localhost:4000').then(res => res.text()).then(data => {console.log(data)})
+    fetch('http://localhost:4000/pyRCV', { method: 'POST', body: reader.result}).then(res => res.text()).then(data => {console.log(data)});
+  }
+  reader.onerror = () => {
+    console.log('parse error');
+  }
+
+  reader.readAsText(files.item(0));
+}
 function FileSelector() {
   const [files, setFiles] = useState(0);
   const reader = new FileReader()
-  for (var i = 0; i < files.length; i++){
-    console.log(files.item(i))
-    reader.readAsText(files.item(i));
-  }
   return (
     <div style={styles.fileSelector}>
         <Input type={'file'} onChange={(event)=>{setFiles(event.target.files)}}></Input>
-        <Button style={styles.button} variant={'outlined'} >Upload</Button>
+        <Button onClick={() => {pingServer(files)}}style={styles.button} variant={'outlined'} >Upload</Button>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const path = require('path')
 const exec = require("child_process").exec;
 
 const app = express();
@@ -23,26 +24,26 @@ app.post('/pyRCV', (req, res) => {
         if (err) { console.log(err) };
         console.log('file recv and writen to disk');
     });
-    exec('ls && python ../pyRCV.py temp/temp.csv temp/temp-results.csv', (error, stdout, stderr) => {
+    exec('python ../pyRCV.py temp/temp.csv temp/results/temp-results.csv', (error, stdout, stderr) => {
         if (error) {
             console.log(error);
-        }
-        if (stdout) {
-            console.log(stdout);
-        }
-        if (stderr) {
             console.log(stderr);
+            res.status(500)
+            res.send('problem processing votes file')
+        } else {
+            const files = fs.readdirSync('temp/results')
+            var data = ''
+            for (var i = 0; i < files.length; i++){
+                data += `"round-${i}":`
+                data += fs.readFileSync(path.resolve(`temp/results/${files[i]}`));
+                if (i + 1 !== files.length){
+                    data += ',';
+                }
+            }
+            res.send(`{${data}}`);
         }
         
     });
-    process.stdout.on('data', data => { 
-        console.log(data.toString());
-    }); 
-    process.on('error', (error) => {
-        console.log(error);
-    });
-
-    res.send('body recv');
 });
 
 const server = app.listen(port, () => {

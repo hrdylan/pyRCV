@@ -1,8 +1,9 @@
+#classes for pyRCV
 # classes for pyRCV
 import warnings
 import csv
 import copy
-
+import json
 HEADER_KEY = "SubmissionId"
 HEADER_SEPARATOR = "-"
 
@@ -58,21 +59,32 @@ class Candidate:
 
 class RoundResults:
 
-    def __init__(self, number, election_title):
+    def __init__(self, round, election_title):
         self.election_title = election_title
-        self.number = number
+        self.round = round
         self.candidates = None
         self.vote_counts = {}
         self.vote_counts_ids = {}
         self.winner = None
         self.m_set = None
 
+    def to_json(self): 
+        with open(self.election_title + "_" + str(self.round) +".json", "w+") as json_file:
+            json_results = {}
+            json_results["election"] = self.election_title
+            json_results["round"] = self.round
+            json_results['winner'] = self.winner
+            json_results['counts'] = self.vote_counts
+            if self.m_set:
+                json_results['eliminated'] = list(self.m_set)
+            return json.dump(json_results, json_file)
+
     def to_csv(self):
-        with open(self.election_title + "_" + str(self.number) +".csv", "w+") as csv_file:
+        with open(self.election_title + "_" + str(self.round) +".csv", "w+") as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow(["Election Title", self.election_title])
             writer.writerow(["Winner", self.winner])
-            writer.writerow(["Round", self.number])
+            writer.writerow(["Round", self.round])
             writer.writerow(["Candidates", self.candidates])
             for cand in self.vote_counts:
                 writer.writerow([cand, str(self.vote_counts[cand])])
@@ -84,7 +96,7 @@ class RoundResults:
 
     def __str__(self):
         ids = {key: [voter.id for voter in self.vote_counts_ids[key]] for key in self.vote_counts_ids.keys()}
-        return "Round %s\nVote Counts: %s\nVote Counts by Id: %s\nWinner: %s\nMinimum Candidates: %s" % (str(self.number), str(self.vote_counts), str(ids), str(self.winner), str(self.m_set))
+        return "Round %s\nVote Counts: %s\nVote Counts by Id: %s\nWinner: %s\nMinimum Candidates: %s" % (str(self.round), str(self.vote_counts), str(ids), str(self.winner), str(self.m_set))
 
 
 class VotesParser:
@@ -227,7 +239,7 @@ class ElectionManager:
             round_count += 1
 
         for round in self.round_results:
-            round.to_csv()
+            round.to_json()
 
 
     def run_round(self, number):
@@ -320,14 +332,3 @@ def get_min_set(dict):
         if dict[key] < dict[m]:
             warnings.warn("builtin min() failed to find minimum value in dictionary", RuntimeWarning)
     return m_set
-
-
-
-
-
-
-
-
-
-
-

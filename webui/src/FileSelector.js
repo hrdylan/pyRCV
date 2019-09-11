@@ -31,7 +31,7 @@ const pingServer = (files, setResults) => {
       console.log(data)
       const rounds = Object.values(data);
       const datasets = rounds.map((val, index) => {
-        console.log(val)
+        console.log(Object.keys(val.counts))
         return {
           datasets: [{
             data: Object.values(val.counts),
@@ -40,7 +40,10 @@ const pingServer = (files, setResults) => {
     
           // These labels appear in the legend and in the tooltips when hovering different arcs
           labels: Object.keys(val.counts),
-          title: `Round ${index}`
+          title: {
+            display: true,
+            text: `Round ${index}`
+          }
         }
       }
   
@@ -70,6 +73,9 @@ function FileSelector() {
                 }
             }]
         },
+        legend: {
+          display: false
+        },
         title: dataset.title
       }}/>
     )
@@ -79,7 +85,6 @@ function FileSelector() {
     <div style={styles.fileSelector}>
         <Input type={'file'} onChange={(event)=>{setFiles(event.target.files)}}></Input>
         <Button onClick={() => {pingServer(files, setResults)}}style={styles.button} variant={'outlined'} >Upload</Button>
-        <TextField fullWidth={true} value={results} variant="outlined" multiline={true}/>
         {charts}
     </div>
   );

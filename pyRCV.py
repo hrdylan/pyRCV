@@ -6,7 +6,7 @@ if __name__ == "__main__":
         print("USAGE: vote_data_file results_data_file_prefix")
         quit(1)
 
-    em = ElectionManager(sys.argv[1], sys.argv[2])
+    em = ElectionManager(sys.argv[1], sys.argv[2], v=False)
 
     em.run_election()
 

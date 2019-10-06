@@ -68,6 +68,16 @@ class RoundResults:
         self.winner = None
         self.m_set = None
 
+    def to_dict(self):
+        results = {}
+        results["election"] = self.election_title
+        results["round"] = self.round
+        results['winner'] = self.winner
+        results['counts'] = self.vote_counts
+        if self.m_set:
+            results['eliminated'] = list(self.m_set)
+        return results
+
     def to_json(self): 
         with open(self.election_title + "_" + str(self.round) +".json", "w+") as json_file:
             json_results = {}
@@ -214,7 +224,7 @@ class ElectionManager:
 
         return candidates
 
-    def get_voters(self):
+    def get_voters(self, v=False):
         voters = []
         count_empty = 0
         with open(self.vote_file) as csv_file:
@@ -230,7 +240,8 @@ class ElectionManager:
                     voters.append(Voter(line[1:], int(line[0])))
                 if len(line) <= 1:
                     count_empty += 1
-        print("empty votes", count_empty)
+        if v:
+            print("empty votes", count_empty)
         return voters
 
     def run_election(self):
@@ -238,17 +249,20 @@ class ElectionManager:
         while self.run_round(round_count) is None:
             round_count += 1
 
+        results = {'rounds': []}
         for round in self.round_results:
-            round.to_json()
+            results['rounds'].append(round.to_dict())
+        print(json.dumps(results))
 
 
-    def run_round(self, number):
+    def run_round(self, number, v=False):
 
         """
         Description: runs a single round of RCV
         :return: None or name of winning candidate
         """
-        print("Round", number)
+        if v:
+            print("Round", number)
         # dictionaries mapping candidate strings to counts or lists of voter objects
         vote_counts = {candidate: 0 for candidate in self.candidates}
         vote_counts_ids = {candidate: [] for candidate in self.candidates}

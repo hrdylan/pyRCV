@@ -29,7 +29,7 @@ const pingServer = (files, setResults) => {
 
     fetch('http://localhost:4000/pyRCV', { method: 'POST', body: reader.result}).then(res => res.json()).then(data => {
       console.log(data)
-      const rounds = Object.values(data);
+      const rounds = data.rounds;
       const datasets = rounds.map((val, index) => {
         console.log(Object.keys(val.counts))
         return {

@@ -7,4 +7,5 @@ if __name__ == "__main__":
         quit(1)
 
     vp = VotesParser(sys.argv[1])
-    vp.separate_csv(sys.argv[2])
+    print(sys.argv[2])
+    vp.separate_csv()

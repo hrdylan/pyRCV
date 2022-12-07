@@ -17,9 +17,9 @@
   },
   "homepage": "https://github.com/hrdylan/pyRCV#readme",
   "dependencies": {
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.1",
     "create-react-app": "^3.1.1",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "serve": "^11.2.0",
     "string-to-color": "^2.1.1"
   }
